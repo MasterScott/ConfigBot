@@ -25,4 +25,4 @@ ToDo:
 3) implement new systems for leech prevention
 ```
 
-created by Mian, Modifed by Pure and Sp00f.
+created by Mian, Maintained by Pure, Improved by Sp00f.
