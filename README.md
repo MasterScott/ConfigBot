@@ -18,6 +18,7 @@ Features:
 To Configure:
 1) Check each .py file for any marks that ask for your Bot Token or your Channel ID.
 2) Check each .py file and change the Role names to what matches your server (Case and Space sensitive)
+(Note: In the future this will be changed and a global settings file will be all you have to edit.)
 
 ToDo:
 1) Create settings folder so users don't need to edit python files
