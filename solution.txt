@@ -1,0 +1,6 @@
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "MaxCPM": 0,
+  "EncodeData": false,
+  "CaptchaUrl": "",

