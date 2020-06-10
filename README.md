@@ -15,14 +15,14 @@ Features:
 6) Users can Upload configs from messages
 7) Users can request a list of configs using messages
 
+To Configure:
+1) Check each .py file for any marks that ask for your Bot Token or your Channel ID.
+2) Check each .py file and change the Role names to what matches your server (Case and Space sensitive)
+
 ToDo:
 1) Create settings folder so users don't need to edit python files
 2) add more functions
 3) implement new systems for leech prevention
-
-To Configure:
-1) Check each .py file for any marks that ask for your Bot Token or your Channel ID.
-2) Check each .py file and change the Role names to what matches your server (Case and Space sensitive)
 ```
 
 created by Mian, Modifed by Pure and Sp00f.
