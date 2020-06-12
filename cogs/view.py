@@ -1,8 +1,5 @@
-import discord
 from discord.ext import commands
-import os
-from tabulate import tabulate
-from cogs.database.db import Base, Configs
+from cogs.database.db import Configs
 from cogs.database.database import session
 from discord.ext import buttons
 

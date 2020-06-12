@@ -1,6 +1,6 @@
 from sqlalchemy import engine, create_engine
 from sqlalchemy.orm import sessionmaker
-from db import Base, Configs
+from db import Base
 
 	# ----------------------- #
 engine = create_engine('sqlite:///Configs.db', echo=False)
