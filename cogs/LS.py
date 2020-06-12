@@ -1,9 +1,6 @@
-import discord
 from discord.ext import commands
 from discord.ext import buttons
 import os
-from cogs.database.db import Base, Configs
-from cogs.database.database import session
 
 present_configs = os.listdir("cogs/configs")
 
